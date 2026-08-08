@@ -1,0 +1,2 @@
+description = "Display token and cost savings achieved via Headroom context optimisation"
+prompt = "Execute `headroom savings` and present a structured summary of the token and cost compression savings achieved over time."

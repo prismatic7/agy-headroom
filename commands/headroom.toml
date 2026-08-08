@@ -1,0 +1,2 @@
+description = "Run a headroom command (status, savings, memory, dashboard, proxy, update)"
+prompt = "Execute the headroom CLI command with args: `headroom {{args}}`. If no arguments are provided, check headroom status by running `headroom doctor` and print the outcome. If arguments are provided, execute the command (e.g. `headroom savings`, `headroom memory list`, etc.) and output the results."

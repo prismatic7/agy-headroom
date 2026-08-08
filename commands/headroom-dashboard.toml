@@ -1,0 +1,2 @@
+description = "Launch the local Headroom savings dashboard in the default browser"
+prompt = "Execute `headroom dashboard` to launch the local web interface showing detailed analytics and metrics."

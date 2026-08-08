@@ -1,0 +1,10 @@
+{
+  "headroom-hook": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "./scripts/headroom-hook.mjs"
+      }
+    ]
+  }
+}

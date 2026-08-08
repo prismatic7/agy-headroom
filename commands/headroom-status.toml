@@ -1,0 +1,2 @@
+description = "Check the health and integration status of the Headroom proxy"
+prompt = "Execute `headroom doctor` and report the current health and configuration status of the Headroom proxy and client routing."

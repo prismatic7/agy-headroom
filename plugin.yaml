@@ -5,3 +5,11 @@ description: Google Antigravity plugin to optimize context windows with Headroom
 author: Chris Wenn
 provides_skills:
   - headroom
+provides_commands:
+  - headroom
+  - headroom-status
+  - headroom-savings
+  - headroom-memory
+  - headroom-dashboard
+provides_hooks:
+  - PreInvocation

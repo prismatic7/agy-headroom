@@ -1,0 +1,2 @@
+description = "List or check status of cached memories in Headroom"
+prompt = "Execute `headroom memory list` (or `headroom memory stats` if the user specifies) to display cached context memories."
