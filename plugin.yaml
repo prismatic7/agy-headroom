@@ -1,0 +1,7 @@
+# Antigravity Plugin Manifest
+name: agy-headroom
+version: 0.1.0
+description: Google Antigravity plugin to optimize context windows with Headroom.
+author: Chris Wenn
+provides_skills:
+  - headroom

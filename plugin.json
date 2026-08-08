@@ -1,0 +1,8 @@
+{
+  "name": "agy-headroom",
+  "version": "0.1.0",
+  "description": "Google Antigravity plugin to optimize context windows with Headroom.",
+  "author": "Chris Wenn",
+  "license": "MIT",
+  "homepage": "https://github.com/prismatic7/agy-headroom"
+}
