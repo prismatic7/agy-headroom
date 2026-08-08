@@ -11,6 +11,7 @@ import http from 'http';
 function checkHeadroom(port) {
   return new Promise((resolve) => {
     const req = http.get(`http://127.0.0.1:${port}/stats`, { timeout: 1000 }, (res) => {
+      res.resume();
       if (res.statusCode === 200) {
         resolve(true);
       } else {
@@ -30,7 +31,13 @@ function checkHeadroom(port) {
 }
 
 async function main() {
-  const port = process.env.HEADROOM_PORT || 8787;
+  const rawPort = process.env.HEADROOM_PORT || "8787";
+  const port = parseInt(rawPort, 10);
+  
+  if (isNaN(port) || port < 1 || port > 65535) {
+    throw new Error(`Invalid HEADROOM_PORT: ${rawPort}`);
+  }
+
   const isRunning = await checkHeadroom(port);
   
   if (!isRunning) {
