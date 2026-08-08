@@ -26,26 +26,56 @@ function checkHeadroom(port) {
 
 function startProxy(port) {
   return new Promise((resolve) => {
+    let resolved = false;
+
+    const safeResolve = (value) => {
+      if (!resolved) {
+        resolved = true;
+        resolve(value);
+      }
+    };
+
     // Spawn the proxy in detached mode so it survives hook exit
     const child = spawn('headroom', ['proxy', '--port', port.toString()], {
       detached: true,
       stdio: 'ignore'
     });
-    child.unref();
 
-    // Poll stats endpoint to verify startup
+    child.on('error', (err) => {
+      console.error(`⚠️ [Headroom Warning]: Failed to spawn Headroom proxy process: ${err.message}`);
+      safeResolve(false);
+    });
+
+    try {
+      child.unref();
+    } catch {
+      // Ignore if unref fails when spawn error occurs synchronously
+    }
+
+    // Poll stats endpoint to verify startup using recursive setTimeout
     let attempts = 0;
-    const interval = setInterval(async () => {
+    const maxAttempts = 15; // 1.5 seconds maximum timeout
+
+    const poll = async () => {
+      if (resolved) return;
+
       attempts++;
       const isRunning = await checkHeadroom(port);
+
+      if (resolved) return;
+
       if (isRunning) {
-        clearInterval(interval);
-        resolve(true);
-      } else if (attempts >= 15) { // 1.5 seconds maximum timeout
-        clearInterval(interval);
-        resolve(false);
+        return safeResolve(true);
       }
-    }, 100);
+
+      if (attempts >= maxAttempts) {
+        return safeResolve(false);
+      }
+
+      setTimeout(poll, 100);
+    };
+
+    setTimeout(poll, 100);
   });
 }
 
@@ -63,6 +93,7 @@ async function main() {
   if (!isRunning) {
     const started = await startProxy(port);
     if (!started) {
+      console.error("⚠️ [Headroom Warning]: Failed to start the Headroom context optimisation proxy. Context compression is disabled for this turn.");
       // Output ephemeral warning if proxy failed to start
       console.log(JSON.stringify({
         injectSteps: [
