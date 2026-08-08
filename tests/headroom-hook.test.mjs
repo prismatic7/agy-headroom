@@ -1,5 +1,6 @@
 import { spawnSync, spawn } from 'child_process';
 import assert from 'assert';
+import path from 'path';
 
 /**
  * Headroom Hook Tests
@@ -42,26 +43,28 @@ function startMockServer(port = 0) {
 }
 
 /**
- * Runs the headroom hook with a specified port and captures stdout/stderr.
+ * Runs the headroom hook with a specified port and environment variables.
  * @param {number|string} port 
+ * @param {Record<string, string>} [extraEnv]
  * @returns {{ stdout: string, stderr: string, status: number|null, parsed: any }}
  */
-function runHook(port) {
+function runHook(port, extraEnv = {}) {
   const result = spawnSync('node', ['./scripts/headroom-hook.mjs'], {
-    env: { ...process.env, HEADROOM_PORT: port.toString() },
+    env: { ...process.env, HEADROOM_PORT: port.toString(), ...extraEnv },
     encoding: 'utf-8'
   });
   let parsed = null;
-  if (result.stdout.trim()) {
+  const stdoutStr = (result.stdout || '').trim();
+  if (stdoutStr) {
     try {
-      parsed = JSON.parse(result.stdout.trim());
+      parsed = JSON.parse(stdoutStr);
     } catch {
       // Ignore JSON parse errors if stdout is not JSON
     }
   }
   return {
-    stdout: result.stdout,
-    stderr: result.stderr,
+    stdout: result.stdout || '',
+    stderr: result.stderr || '',
     status: result.status,
     parsed
   };
@@ -89,9 +92,11 @@ async function runTests() {
     );
     console.log('  ✓ Passed: Hook returns valid JSON when proxy is active.');
 
-    // Test Case 2: Inactive proxy (using an unused port, e.g. 59999)
+    // Test Case 2: Inactive proxy (using port 59999 and excluding user bin path to force auto-start failure)
     console.log('- Test Case 2: Inactive proxy on port 59999...');
-    const inactiveRes = runHook(59999);
+    const nodeBinDir = path.dirname(process.execPath);
+    const isolatedPath = `${nodeBinDir}:/usr/bin:/bin`;
+    const inactiveRes = runHook(59999, { PATH: isolatedPath });
     assert.strictEqual(inactiveRes.status, 0, 'Hook should exit with code 0 for inactive proxy fallback.');
     assert.ok(inactiveRes.parsed, 'Hook output should be valid JSON.');
     assert.strictEqual(inactiveRes.parsed.injectSteps.length, 1, 'Expected one injected warning step.');
